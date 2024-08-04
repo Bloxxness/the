@@ -12,7 +12,7 @@
 #
 
 #where the stuff is
-script_url="https://raw.githubusercontent.com/MrChromebox/tree/3c8026eec3c301ffe3aa0464d750ce41a044eb2e"
+script_url="https://raw.githubusercontent.com/MrChromebox/scripts/3c8026eec3c301ffe3aa0464d750ce41a044eb2e/kodi.sh"
 
 #ensure output of system tools in en-us for parsing
 export LC_ALL=C
