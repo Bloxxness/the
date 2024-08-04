@@ -43,9 +43,9 @@ if [[ $rc0 -ne 0 || $rc1 -ne 0 || $rc2 -ne 0 ]]; then
     exit 1
 fi
 
-source /.sources.sh
-source /.firmware.sh
-source /.functions.sh
+source $script_dir/sources.sh
+source $script_dir/firmware.sh
+source $script_dir/functions.sh
 
 #set working dir
 cd /tmp
