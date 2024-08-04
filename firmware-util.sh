@@ -12,7 +12,7 @@
 #
 
 #where the stuff is
-script_url="https://raw.githubusercontent.com/Bloxxness/the/main/"
+script_url="https://raw.githubusercontent.com/Bloxxness/the/master"
 
 #ensure output of system tools in en-us for parsing
 export LC_ALL=C
@@ -26,13 +26,7 @@ else
     cd /tmp
 fi
 
-#check for cmd line param, expired CrOS certs
-if ! curl -sLo /dev/null https://mrchromebox.tech/index.html || [[ "$1" = "-k" ]]; then
     export CURL="curl -k"
-else
-    export CURL="curl"
-fi
-
 #get support scripts
 echo -e "\nDownloading supporting files..."
 rm -rf firmware.sh >/dev/null 2>&1
