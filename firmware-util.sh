@@ -12,29 +12,25 @@
 #
 
 #where the stuff is
-script_url="https://raw.githubusercontent.com/MrChromebox/scripts/3c8026eec3c301ffe3aa0464d750ce41a044eb2e/kodi.sh"
+script_url="https://raw.githubusercontent.com/MrChromebox/scripts/master/"
 
 #ensure output of system tools in en-us for parsing
 export LC_ALL=C
 
 #set working dir
 if grep -q "Chrom" /etc/lsb-release ; then
-	# needed for ChromeOS/ChromiumOS v82+
-	mkdir -p /usr/local/bin
-	cd /usr/local/bin
+    # needed for ChromeOS/ChromiumOS v82+
+    mkdir -p /usr/local/bin
+    cd /usr/local/bin
 else
-	cd /tmp
+    cd /tmp
 fi
-
-# clear screen / show banner
-printf "\ec"
-echo -e "\nMrChromebox Firmware Utility Script starting up"
 
 #check for cmd line param, expired CrOS certs
 if ! curl -sLo /dev/null https://mrchromebox.tech/index.html || [[ "$1" = "-k" ]]; then
-	export CURL="curl -k"
+    export CURL="curl -k"
 else
-	export CURL="curl"
+    export CURL="curl"
 fi
 
 #get support scripts
@@ -49,8 +45,8 @@ rc1=$?
 $CURL -sLO ${script_url}sources.sh
 rc2=$?
 if [[ $rc0 -ne 0 || $rc1 -ne 0 || $rc2 -ne 0 ]]; then
-	echo -e "Error downloading one or more required files; cannot continue"
-	exit 1
+    echo -e "Error downloading one or more required files; cannot continue"
+    exit 1
 fi
 
 source ./sources.sh
