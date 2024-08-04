@@ -12,7 +12,7 @@
 #
 
 #where the stuff is
-script_url="https://raw.githubusercontent.com/MrChromebox/scripts/cff4ab4be70340dd689f82585e5cf74b4b2afef7/"
+script_url="https://raw.githubusercontent.com/MrChromebox/scripts/023f55520a12f4bd2fc07ed9c50abc25db275b26"
 
 #ensure output of system tools in en-us for parsing
 export LC_ALL=C
